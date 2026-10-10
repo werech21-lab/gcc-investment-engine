@@ -233,3 +233,25 @@ def save_deal_to_supabase(title, price, rating, analysis, source_url, category):
     
     # 3. إرسال التقرير عبر البريد الإلكتروني (HTML)
     send_email_alert("🏛️ تقرير GCC Multi-Agent: فرصة استثمارية موثقة", email_html)
+import os
+from supabase import create_client, Client
+
+# جلب بيانات الربط من أسرار GitHub
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+def save_deal_to_supabase(title, price, rating, analysis, source_url, category):
+    try:
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        deal_data = {
+            "title": title,
+            "price": price,
+            "rating": rating,
+            "analysis": analysis,
+            "source_url": source_url,
+            "category": category
+        }
+        response = supabase.table("deals").insert(deal_data).execute()
+        print("✅ تم حفظ الفرصة بنجاح في Supabase!")
+    except Exception as e:
+        print(f"❌ خطأ أثناء الحفظ في Supabase: {e}")
