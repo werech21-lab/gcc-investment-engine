@@ -86,6 +86,7 @@ class GCCMultiAgentCouncil:
         <p><b>السعر:</b> {deal['price']}</p>
         <p><b>التقييم:</b> {deal['rating']}</p>
         <p><b>العائد المتوقع:</b> {deal['estimated_yield']}</p>
+        <p><b>الدولة:</b> {deal['country']}</p>
         <p><b>المصدر:</b> <a href="{deal['source_url']}">{deal['source_name']}</a></p>
         <hr>
         <h3>تحليل مجلس الوكلاء:</h3>
@@ -111,8 +112,8 @@ if __name__ == "__main__":
         "category": "Energy & Renewables",
         "country": "الإمارات",
         "estimated_yield": "11.5%",
-        "source_name": "منصة الاستثمار الخليجي المعتمدة",
-        "source_url": "https://www.moj.gov.kw"
+        "source_name": "وزارة التغير المناخي والبيئة - الإمارات",
+        "source_url": "https://www.moccae.gov.ae"
     }
     
     telegram_msg, email_html = council.run_analysis_pipeline(sample_deal)
