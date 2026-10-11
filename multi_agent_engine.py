@@ -1,40 +1,42 @@
-import json
-import os
+name: GCC Investment Engine Automation
 
-SENT_FILE = "sent_opportunities.json"
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
+jobs:
+  run-engine:
+    runs-on: ubuntu-latest
 
-def load_sent_opportunities():
-  if os.path.exists(SENT_FILE):
-    with open(SENT_FILE, "r", encoding="utf-8") as f:
-      try:
-        return json.load(f)
-      except json.JSONDecodeError:
-        return []
-  return []
+    permissions:
+      contents: write
 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-def save_sent_opportunity(opportunity_id):
-  sent_list = load_sent_opportunities()
-  if opportunity_id not in sent_list:
-    sent_list.append(opportunity_id)
-    with open(SENT_FILE, "w", encoding="utf-8") as f:
-      json.dump(sent_list, f, ensure_ascii=False, indent=4)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-# داخل دالة فحص وإرسال الفرص في السكريبت الخاص بك:
-def process_opportunity(opportunity):
-  opp_id = opportunity.get(
-      "id"
-  )  # أو استخدم عنوان الفرصة فريداً مثل opportunity.get('title')
-  sent_list = load_sent_opportunities()
+      - name: Run Engine Script
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        run: |
+          python multi_agent_engine.py
 
-  if opp_id in sent_list:
-    print(f"الفرصة '{opp_id}' تم إرسالها مسبقاً، يتم تخطيها.")
-    return  # الخروج وعدم إرسالها مجدداً
-
-  # --- هنا كود الإرسال الحالي (إرسال الإيميل أو التلجرام) ---
-  print(f"جاري إرسال الفرصة الجديدة: {opp_id}")
-
-  # بعد نجاح الإرسال، نقوم بحفظ الـ ID حتى لا يتكرر
-  save_sent_opportunity(opp_id)
+      - name: Commit and Push Updated Sent Log
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add sent_opportunities.json
+          git commit -m "Auto-update sent opportunities history [skip ci]" || echo "No changes to commit"
+          git push
