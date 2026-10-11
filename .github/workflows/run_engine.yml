@@ -2,16 +2,15 @@ name: GCC Investment Engine Automation
 
 on:
   schedule:
-    # يعمل آلياً كل 6 ساعات (يمكنك تعديل الجدول حسب رغبتك)
     - cron: '0 */6 * * *'
-  workflow_dispatch: # يتيح لك التشغيل اليدوي للـ Workflow بأي وقت بنقرة زر
+  workflow_dispatch:
 
 jobs:
   run-engine:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write # إعطاء الصلاحيات لـ GitHub Actions لكتابة وحفظ التغييرات في المستودع
+      contents: write
 
     steps:
       - name: Checkout Repository
@@ -32,7 +31,7 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         run: |
-          python main.py  # استبدل main.py باسم ملف البايثون الرئيسي لديك إذا كان مختلفاً
+          python multi_agent_engine.py
 
       - name: Commit and Push Updated Sent Log
         run: |
